@@ -4,35 +4,35 @@ using UnityEngine;
 
 public class LeyHOOKE : MonoBehaviour
 {
-    public float constanteElastica = 10f;
-    public float amortiguamiento = 0.5f;
+    public float constanteElastica = 100f;
+    public float longitudNatural = 0.5f;
 
-    private float posicionObjeto;
-    private float velocidadObjeto;
- 
 
-    // Update is called once per frame
-    void Update()
+
+    private void OnCollisionEnter(Collision collision)
     {
-        simularMovimiento();
+        if(collision.gameObject.CompareTag("ObjetoCae"))
+        {
+            AplicarFuerzaRestauradora(collision.gameObject);
+        }
     }
-    void simularMovimiento()
+    private void AplicarFuerzaRestauradora(GameObject ObjetoCae)
     {
-        float fuerzaElastica = -constanteElastica * posicionObjeto;
-        
-        // aplicar amortiguamiento
+       Rigidbody rbObjetoCae = ObjetoCae.GetComponent<Rigidbody>();
 
-        fuerzaElastica -=amortiguamiento * velocidadObjeto;
+        if(rbObjetoCae != null)
+        {
+             // es la distancia que hay entre el objeto y la superficie (distancia relativa)
+            float posicionRelativa = ObjetoCae.transform.position.y - transform.position.y;
 
-        float aceleracion = fuerzaElastica;
-        
-        velocidadObjeto += aceleracion*Time.deltaTime;
-        posicionObjeto += velocidadObjeto * Time.deltaTime;
+            //calcular la fuerza elastica segun la ley de hooke
 
-        transform.position = new Vector3(transform.position.x, posicionObjeto, transform.position.z);
+            float fuerzaElastica = constanteElastica * (posicionRelativa - longitudNatural);
 
+            //APLICAR FUERZA
 
-
+            rbObjetoCae.AddForce(Vector3.up * fuerzaElastica,ForceMode.Impulse);
+        }
     }
 }
 
